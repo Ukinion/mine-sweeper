@@ -1,19 +1,17 @@
 package game;
 
-import java.util.Random;
-import game.objects.field.MineField;
+import java.io.File;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.ArrayList;
+import java.util.AbstractMap.SimpleEntry;
+import javafx.util.Pair;
 
 public class Main
 {
     public static void main(String[] argc)
     {
-        try {
-            MineField mineField = new MineField(2, 2);
-            mineField.mineBoard(2);
 
-        } catch (Exception lol)
-        {
-            System.out.println("lol");
-        }
+
     }
 }

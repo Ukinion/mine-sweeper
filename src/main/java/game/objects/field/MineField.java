@@ -10,6 +10,7 @@ import java.util.HashMap;
 public class MineField
 {
     private final static int MIN_FIELD_SIZE = 1;
+    private final static int MIN_MINES_ON_FIELD = 1;
     private final static int LINE_ENVIRONMENT = 2;
 
     private enum PlaceType
@@ -30,9 +31,9 @@ public class MineField
     private final int _fieldSize;
     private int _numMinesOnField;
 
-    public MineField(int numRow, int numCol) throws GameException
+    public MineField(int numRow, int numCol, int numMines) throws GameException
     {
-        if (numRow < MIN_FIELD_SIZE || numCol < MIN_FIELD_SIZE)
+        if (numRow < MIN_FIELD_SIZE || numCol < MIN_FIELD_SIZE || numMines < MIN_MINES_ON_FIELD)
         {
             throw new InvalidFieldSetup();
         }
@@ -40,7 +41,7 @@ public class MineField
         _fieldRow = numRow;
         _fieldCol = numCol;
         _fieldSize = numRow* numCol;
-        _numMinesOnField = 0;
+        mineBoard(numMines);
 
         _cells = new Cell[_fieldSize];
         for (var i =0; i < _fieldSize; ++i)
@@ -87,12 +88,12 @@ public class MineField
         return PlaceType.INNER._ordinal;
     }
 
-    private boolean isOutOfField(int x, int y)
+    public boolean isOutOfField(int x, int y)
     {
         return x < 0 || y < 0 || x >= _fieldCol || y >= _fieldRow;
     }
 
-    public void mineBoard(int numMines)
+    private void mineBoard(int numMines)
     {
         if (numMines < _fieldSize)
         {
@@ -114,7 +115,7 @@ public class MineField
 
         while (true)
         {
-            cell = locateCell(placeGenerator.nextInt(_fieldSize));
+            cell = locateCell(placeGenerator.nextInt(_fieldCol), placeGenerator.nextInt(_fieldRow));
             if (cell.isClear())
             {
                 cell.setMine();
@@ -124,9 +125,9 @@ public class MineField
         }
     }
 
-    private Cell locateCell(int coordinate)
+    public Cell locateCell(int x, int y)
     {
-        return _cells[coordinate];
+        return _cells[y*_fieldCol+x];
     }
 
     private void increaseMineAroundNeighbours(Cell cell)
@@ -138,11 +139,11 @@ public class MineField
         }
     }
 
-    public void moveMine(Cell cell)
+    public void moveMine(Cell mine)
     {
         mineRandomGround();
-        cell.defuseMine(locateNumMineAround(cell));
-        decreaseMineAroundNeighbours(cell);
+        mine.defuseMine(locateNumMineAround(mine));
+        decreaseMineAroundNeighbours(mine);
     }
 
     private int locateNumMineAround(Cell cell)
@@ -164,5 +165,28 @@ public class MineField
         {
             neighbour.concealMine();
         }
+    }
+
+    public int getNumNotMinedCell()
+    {
+        return _fieldSize-_numMinesOnField;
+    }
+
+    public void openField()
+    {
+        for (Cell i : _cells)
+        {
+            i.openCell();
+        }
+    }
+
+    public int getFieldRow()
+    {
+        return _fieldRow;
+    }
+
+    public int getFieldCol()
+    {
+        return _fieldCol;
     }
 }

@@ -5,4 +5,5 @@ module com.example.minesweeper
 
     requires org.controlsfx.controls;
     requires org.kordamp.bootstrapfx.core;
+    requires java.desktop;
 }

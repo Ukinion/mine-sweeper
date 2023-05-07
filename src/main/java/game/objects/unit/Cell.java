@@ -9,6 +9,8 @@ public class Cell
     private int _y;
     private int _numMinesAround;
     private boolean _isOpened;
+    private boolean _isFlag;
+    private boolean _isGetRound;
 
     public Cell(int x, int y)
     {
@@ -17,6 +19,23 @@ public class Cell
         _y = y;
         _numMinesAround = 0;
         _isOpened = false;
+        _isFlag = false;
+        _isGetRound = false;
+    }
+
+    public boolean isOpened()
+    {
+        return _isOpened;
+    }
+
+    public boolean isFlag()
+    {
+        return _isFlag;
+    }
+
+    public boolean isGetRound()
+    {
+        return _isGetRound;
     }
 
     public boolean isClear()
@@ -59,6 +78,21 @@ public class Cell
     public void detectNewMine()
     {
         ++_numMinesAround;
+    }
+
+    public void openCell()
+    {
+        _isOpened = true;
+    }
+
+    public void setFlag()
+    {
+        _isFlag = true;
+    }
+
+    public void getRound()
+    {
+        _isGetRound = true;
     }
 
     public void concealMine()

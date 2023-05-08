@@ -85,6 +85,11 @@ public class ScoreTable
         _scoreTable.add(new Pair<>(name, score));
     }
 
+    public void removeFromScoreTable(Pair<String, Double> player)
+    {
+        _scoreTable.remove(player);
+    }
+
     public TreeSet<Pair<String, Double>> getScoreTable()
     {
         return _scoreTable;

@@ -21,7 +21,7 @@ public class MineSweeper
 
     public enum GameStage
     {
-        ACTION, VICTORY, DEFEAT, END, START
+        LAUNCHED, ACTION, VICTORY, DEFEAT, CLOSED
     }
 
     private GameStage _gameStage;
@@ -49,7 +49,7 @@ public class MineSweeper
         _gameField = new MineField(gameFieldRow, gameFieldCol, numMinesOnField);
         _cellToOpen = _gameField.getNumNotMinedCell();
         _curScore = BASE_SCORE;
-        _gameStage = GameStage.START;
+        _gameStage = GameStage.LAUNCHED;
 
         _gameTimer = new Timer();
         _curGameTime = 0;
@@ -173,6 +173,21 @@ public class MineSweeper
             return true;
         }
         return false;
+    }
+
+    public void closeGame()
+    {
+        changeStageAndNotify(GameStage.CLOSED);
+    }
+
+    public ScoreTable getScoreTable()
+    {
+        return _scoreTable;
+    }
+
+    public void setFlag(int x, int y)
+    {
+        _gameField.locateCell(x, y).setFlag();
     }
 
 }

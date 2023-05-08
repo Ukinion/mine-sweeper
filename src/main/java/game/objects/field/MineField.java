@@ -2,7 +2,7 @@ package game.objects.field;
 
 import game.objects.unit.Cell;
 import game.exception.GameException;
-import game.exception.InvalidFieldSetup;
+import game.exception.InvalidFieldSetupException;
 
 import java.util.Random;
 import java.util.HashMap;
@@ -35,7 +35,7 @@ public class MineField
     {
         if (numRow < MIN_FIELD_SIZE || numCol < MIN_FIELD_SIZE || numMines < MIN_MINES_ON_FIELD)
         {
-            throw new InvalidFieldSetup();
+            throw new InvalidFieldSetupException();
         }
 
         _fieldRow = numRow;

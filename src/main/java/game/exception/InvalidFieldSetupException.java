@@ -1,8 +1,8 @@
 package game.exception;
 
-public class InvalidFieldSetup extends GameException
+public class InvalidFieldSetupException extends GameException
 {
-    public InvalidFieldSetup()
+    public InvalidFieldSetupException()
     {
         super("GameFieldError: invalid data for creating field\n");
     }

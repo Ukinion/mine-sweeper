@@ -11,6 +11,8 @@ public class SweeperController
     public static final String PLAYER_NAME = "name";
     public static final String PLAYER_SCORE = "score";
     public static final String PLAYER = "player";
+    public static final String EXIT_FROM_GAME = "exit";
+    public static final String INVALID_ACTION = "invalid";
 
     private static final int EXIT_FAILURE = -1;
     private MineSweeper _gameModel;
@@ -69,6 +71,11 @@ public class SweeperController
                 System.exit(EXIT_FAILURE);
             }
         }
+    }
+
+    public MineSweeper getGameModel()
+    {
+        return _gameModel;
     }
 
 }

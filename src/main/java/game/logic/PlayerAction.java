@@ -29,9 +29,9 @@ public class PlayerAction
         _actionType = actionType;
     }
 
-    public boolean isInvalidAction(ActionType actionType)
+    public boolean isInvalidAction()
     {
-        return actionType == ActionType.INVALID;
+        return _actionType == ActionType.INVALID;
     }
 
     public ActionType getActionType()

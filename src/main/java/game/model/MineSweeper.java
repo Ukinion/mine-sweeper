@@ -12,6 +12,11 @@ import java.util.TimerTask;
 
 public class MineSweeper
 {
+    public static final String IGNORE_EVENT = "GameTimeOrCellChange";
+    public static final String CHANGE_GAME_STAGE_EVENT = "StageChange";
+    public static final String REQUEST_ACTION_EVENT = "NothingChange";
+    public static final String FIELD_CHANGE_EVENT = "FieldChangeOrFlagSet";
+
     private static final int BASE_SCORE = 1;
     private static final int DELAY = 1000;
     private static final int INTERVAL = 1000;
@@ -59,7 +64,7 @@ public class MineSweeper
 
     private void changeStageAndNotify(GameStage newStage)
     {
-        _gameEventSupport.firePropertyChange("StageChange", _gameStage, newStage);
+        _gameEventSupport.firePropertyChange(CHANGE_GAME_STAGE_EVENT, _gameStage, newStage);
         _gameStage = newStage;
     }
 
@@ -67,7 +72,7 @@ public class MineSweeper
     {
         if (isIgnoreClick(x,y))
         {
-            _gameEventSupport.firePropertyChange("NothingChange", IGNORE, IGNORE);
+            _gameEventSupport.firePropertyChange(REQUEST_ACTION_EVENT, IGNORE, IGNORE);
         }
         else processClick(_gameField.locateCell(x,y));
     }
@@ -105,7 +110,7 @@ public class MineSweeper
         openCellLocality(cell.getCoordinateX(), cell.getCoordinateY());
         if (!isVictory())
         {
-            _gameEventSupport.firePropertyChange("FieldChange", IGNORE, cell);
+            _gameEventSupport.firePropertyChange(FIELD_CHANGE_EVENT, IGNORE, cell);
         }
     }
 
@@ -114,7 +119,7 @@ public class MineSweeper
         TimerTask gameTimerTask = new TimerTask() {
             @Override
             public void run() {
-                _gameEventSupport.firePropertyChange("GameTimeChange",
+                _gameEventSupport.firePropertyChange(IGNORE_EVENT,
                         IGNORE, ++_curGameTime);
                 updateCurGameScore();
             }
@@ -151,7 +156,7 @@ public class MineSweeper
         if (cell.isMine() || cell.isOpened()) return;
 
         cell.openCell();
-        _gameEventSupport.firePropertyChange("CellChange", IGNORE, cell);
+        _gameEventSupport.firePropertyChange(IGNORE_EVENT, IGNORE, cell);
         --_cellToOpen;
         if (cell.getMinesAround() > 0 || _cellToOpen == 0) return;
 
@@ -185,9 +190,27 @@ public class MineSweeper
         return _scoreTable;
     }
 
+    public MineField getGameField()
+    {
+        return _gameField;
+    }
+
+
     public void setFlag(int x, int y)
     {
-        _gameField.locateCell(x, y).setFlag();
+        _gameField.locateCell(x,y).setFlag();
+        _gameEventSupport.firePropertyChange(FIELD_CHANGE_EVENT, IGNORE, _gameField.locateCell(x,y));
     }
+
+    public int getCurGameTime()
+    {
+        return _curGameTime;
+    }
+
+    public int getCurScore()
+    {
+        return _curScore;
+    }
+
 
 }

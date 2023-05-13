@@ -6,7 +6,7 @@ public class PlayerAction
 {
     public enum ActionType
     {
-        CLICK, FLAG, EXIT_TO_MENU, SAVE_SCORE, REMOVE_SCORE, SERIALIZE_SCORE, INVALID
+        CLICK, FLAG, EXIT, SAVE_SCORE, REMOVE_SCORE, SERIALIZE_SCORE, INVALID
     }
 
     private HashMap<String, Object> _actionParameters;

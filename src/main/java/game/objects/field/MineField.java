@@ -41,7 +41,6 @@ public class MineField
         _fieldRow = numRow;
         _fieldCol = numCol;
         _fieldSize = numRow* numCol;
-        mineBoard(numMines);
 
         _cells = new Cell[_fieldSize];
         for (var i =0; i < _fieldSize; ++i)
@@ -49,6 +48,7 @@ public class MineField
             _cells[i] = new Cell(i % _fieldCol, i / _fieldCol);
         }
         fillOutMap();
+        mineBoard(numMines);
     }
 
     private void fillOutMap()

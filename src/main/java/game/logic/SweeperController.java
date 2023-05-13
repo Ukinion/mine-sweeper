@@ -2,7 +2,6 @@ package game.logic;
 
 import game.exception.GameException;
 import game.model.MineSweeper;
-import javafx.util.Pair;
 
 public class SweeperController
 {
@@ -11,10 +10,11 @@ public class SweeperController
     public static final String PLAYER_NAME = "name";
     public static final String PLAYER_SCORE = "score";
     public static final String PLAYER = "player";
+    public static final String SERIALIZE = "serialize";
     public static final String EXIT_FROM_GAME = "exit";
     public static final String INVALID_ACTION = "invalid";
+    public static final int EXIT_FAILURE = -1;
 
-    private static final int EXIT_FAILURE = -1;
     private MineSweeper _gameModel;
 
     public SweeperController()
@@ -47,7 +47,7 @@ public class SweeperController
                 _gameModel.setFlag((int)playerAction.getActionParameters(COORDINATE_X),
                         (int)playerAction.getActionParameters(COORDINATE_Y));
             }
-            case EXIT_TO_MENU ->
+            case EXIT ->
             {
                 _gameModel.closeGame();
             }
@@ -58,7 +58,7 @@ public class SweeperController
             }
             case REMOVE_SCORE ->
             {
-                _gameModel.getScoreTable().removeFromScoreTable((Pair<String, Double>)
+                _gameModel.getScoreTable().removeFromScoreTable((String)
                         playerAction.getActionParameters(PLAYER));
             }
             case SERIALIZE_SCORE ->

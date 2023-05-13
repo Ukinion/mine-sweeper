@@ -68,6 +68,7 @@ public class ScoreTable
 
     public void serializeScoreTable() throws GameException
     {
+        if (_scoreTable.isEmpty()) return;
         try (FileOutputStream outputStream = new FileOutputStream(_scoreFile);
              ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream))
         {
@@ -85,9 +86,15 @@ public class ScoreTable
         _scoreTable.add(new Pair<>(name, score));
     }
 
-    public void removeFromScoreTable(Pair<String, Double> player)
+    public void removeFromScoreTable(String playerName)
     {
-        _scoreTable.remove(player);
+        for (Pair<String, Double> player : _scoreTable)
+        {
+            if (player.getKey().equals(playerName))
+            {
+                _scoreTable.remove(new Pair<>(playerName, player.getValue()));
+            }
+        }
     }
 
     public TreeSet<Pair<String, Double>> getScoreTable()

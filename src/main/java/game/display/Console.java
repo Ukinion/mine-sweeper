@@ -2,21 +2,26 @@ package game.display;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
 import java.util.Scanner;
-import java.util.SimpleTimeZone;
 
+import game.exception.ActionParameterException;
 import game.exception.GameException;
+import game.exception.InvalidFieldSetupException;
 import game.logic.PlayerAction;
 import game.logic.SweeperController;
 import game.model.MineSweeper;
 import game.objects.field.MineField;
 import game.objects.unit.Cell;
-
+import javafx.util.Pair;
 
 public class Console implements PropertyChangeListener
 {
     private static final String EXIT = "e";
-    private static final String FLAG = "F";
+    private static final String FLAG = "f";
+    private static final String SCORE = "st";
+    private static final String CLICK = "c";
+    private static final String BACK = "b";
     private static final String IGNORE_PARAMETERS = "i";
     private static final String DELIMITER_ACTION_PARAMETERS = " ";
 
@@ -39,6 +44,13 @@ public class Console implements PropertyChangeListener
     private static final String CYAN_COLOR = "\u001b[36m";
     private static final String WHITE_COLOR = "\u001b[37m";
 
+    private static final String INIT_OPTION = "1";
+    private static final String RECORDS_OPTION = "2";
+    private static final String INFO_OPTION = "3";
+    private static final String EXIT_OPTION = "4";
+
+    private static final int MAX_FIELD_SIZE = 99;
+
     private static final String UNKNOWN_CELL = " ";
     private static final String MINE_CELL = "*";
 
@@ -53,8 +65,156 @@ public class Console implements PropertyChangeListener
         _consoleScanner = new Scanner(System.in);
         _playerAction = new PlayerAction();
         _gameController = new SweeperController();
+        initGameObjects();
+    }
+
+    public void invokeGameMenuWindow()
+    {
+        while (true)
+        {
+            printMenu();
+            switch (_consoleScanner.next())
+            {
+                case INIT_OPTION -> launchGame();
+                case RECORDS_OPTION -> openScoreTable();
+                case INFO_OPTION -> printGameInfo();
+                case EXIT_OPTION -> exitGame();
+                default -> System.out.println("\tInvalid menu option. Try again");
+            }
+        }
+    }
+
+    public void printMenu()
+    {
+        System.out.println("\t\t******Minesweeper menu******");
+        System.out.println("\t1. Start new game.");
+        System.out.println("\t2. Records.");
+        System.out.println("\t3. About.");
+        System.out.println("\t4. Exit.");
+        System.out.println("\t\t\t********************");
+    }
+
+    private void launchGame()
+    {
+        int fieldRow, fieldCol, numMinesOnField;
+        System.out.println("\t\t******New game options******");
+        System.out.println("\tEnter game field row: ");
+        fieldRow = getInputDigit();
+        System.out.println("\tEnter game field col: ");
+        fieldCol = getInputDigit();
+        System.out.println("\tEnter number of mines: ");
+        numMinesOnField = getInputDigit();
+
+        try
+        {
+            if (fieldCol == MAX_FIELD_SIZE || fieldRow == MAX_FIELD_SIZE)
+            {
+                throw new InvalidFieldSetupException("Field is too big for Console UI");
+            }
+            _gameController.startMineSweeper(fieldRow, fieldCol, numMinesOnField);
+        }
+        catch(GameException e)
+        {
+            System.out.println(e.getMessage());
+            System.out.println("Back to menu.");
+            System.out.println("\t\t\t***************");
+        }
+    }
+
+    private void initGameObjects()
+    {
         _gameModel = _gameController.getGameModel();
         _gameField = _gameModel.getGameField();
+    }
+
+    private int getInputDigit()
+    {
+        while (true)
+        {
+            try
+            {
+                return Integer.parseInt(_consoleScanner.next());
+            }
+            catch (NumberFormatException e)
+            {
+                System.out.println("Incorrect number format! Try again.");
+            }
+        }
+    }
+
+    private void openScoreTable()
+    {
+        System.out.println("\t\t*******Score table*******");
+        var playerList = _gameModel.getScoreTable().getScoreTable();
+        StringBuilder tableWindow = new StringBuilder();
+        int place = 1;
+        for (Pair<String, Double> player : playerList)
+        {
+            tableWindow.append(place++);
+            tableWindow.append(".");
+            tableWindow.append(player.getKey());
+            tableWindow.append(" - ");
+            tableWindow.append(player.getValue());
+            System.out.println(tableWindow);
+            tableWindow.setLength(EMPTY_STRING);
+        }
+        System.out.println("\n\t   Write name to remove score.");
+        System.out.println("\n\tb. Back.");
+        System.out.println("\t\t\t********************");
+        waitRespondFromPlayer();
+    }
+
+    private void waitRespondFromPlayer()
+    {
+        String respond;
+        while(true)
+        {
+            respond = _consoleScanner.next();
+            if (respond.equals(BACK)) break;
+            try
+            {
+                _playerAction.defineAction(SweeperController.PLAYER,
+                        respond, PlayerAction.ActionType.REMOVE_SCORE);
+                _gameController.processPlayerAction(_playerAction);
+            }
+            catch (NumberFormatException | GameException e)
+            {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    private void printGameInfo()
+    {
+        System.out.println("\t\t******Minesweeper about******");
+        System.out.println(_gameModel.getAboutInfo());
+        System.out.println("\n\tb. Back.");
+        System.out.println("\t\t\t********************");
+        waitRespondFromPlayer();
+    }
+
+    private void exitGame()
+    {
+        _playerAction.defineAction(IGNORE_PARAMETERS, IGNORE_PARAMETERS,
+                PlayerAction.ActionType.SERIALIZE_SCORE);
+        try
+        {
+            _gameController.processPlayerAction(_playerAction);
+            pseudoClearConsole();
+            System.exit(SweeperController.EXIT_FAILURE);
+        }
+        catch (GameException e)
+        {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void pseudoClearConsole()
+    {
+        for(int clear = 0; clear < 500; clear++)
+        {
+            System.out.println("\b") ;
+        }
     }
 
     @Override
@@ -77,8 +237,8 @@ public class Console implements PropertyChangeListener
 
     private void requestForPlayerAction()
     {
-        System.out.print("Write coords to click \"x y\", \"e\" to exit, " +
-                "\"f x y\" for flagging, \"st [name] ");
+        System.out.print("Write coords to click \"c x y\", \"e\" to exit, " +
+                "\"f x y\" for flagging, add yourself to score table(if game over) \"st [name]");
         while(_playerAction.isInvalidAction())
         {
             defineAction(_consoleScanner.nextLine().split(DELIMITER_ACTION_PARAMETERS));
@@ -95,14 +255,14 @@ public class Console implements PropertyChangeListener
 
     private void defineAction(String[] action)
     {
-        switch(action.length)
+        switch(action[FIRST_PARAMETER])
         {
-            case UNARY_ACTION ->
+            case EXIT ->
             {
-                if (action[FIRST_PARAMETER].equals(EXIT))
+                if (action.length == UNARY_ACTION)
                 {
                     _playerAction.defineAction(SweeperController.EXIT_FROM_GAME,
-                            EXIT, PlayerAction.ActionType.EXIT_TO_MENU);
+                            EXIT, PlayerAction.ActionType.EXIT);
                 }
                 else
                 {
@@ -110,42 +270,53 @@ public class Console implements PropertyChangeListener
                             IGNORE_PARAMETERS, PlayerAction.ActionType.INVALID);
                 }
             }
-            case BINARY_ACTION ->
+            case CLICK ->
             {
                 try
                 {
+                    if (action.length != BINARY_ACTION) throw new ActionParameterException();
                     _playerAction.defineAction(SweeperController.COORDINATE_X,
                             Integer.parseInt(action[FIRST_PARAMETER]), PlayerAction.ActionType.CLICK);
                     _playerAction.defineAction(SweeperController.COORDINATE_Y,
                             Integer.parseInt(action[SECOND_PARAMETER]), PlayerAction.ActionType.CLICK);
                 }
-                catch (NumberFormatException ex)
+                catch (NumberFormatException | ActionParameterException ex)
                 {
-                    System.out.println("Incorrect coordinates! Please, try again.");
+                    System.out.println("Action cant be executed! Please, try again.");
                     _playerAction.defineAction(SweeperController.INVALID_ACTION,
                             IGNORE_PARAMETERS, PlayerAction.ActionType.INVALID);
                 }
             }
-            case TERNARY_ACTION ->
+            case FLAG ->
             {
-                if (action[FIRST_PARAMETER].equals(FLAG))
+                try
                 {
-                    try
-                    {
-                        _playerAction.defineAction(SweeperController.COORDINATE_X,
-                                Integer.parseInt(action[SECOND_PARAMETER]), PlayerAction.ActionType.FLAG);
-                        _playerAction.defineAction(SweeperController.COORDINATE_Y,
-                                Integer.parseInt(action[THIRD_PARAMETER]), PlayerAction.ActionType.FLAG);
-                    }
-                    catch (NumberFormatException ex)
-                    {
-                        System.out.println("Incorrect coordinates! Please, try again.");
-                        _playerAction.defineAction(SweeperController.INVALID_ACTION,
-                                IGNORE_PARAMETERS, PlayerAction.ActionType.INVALID);
-                    }
+                    if (action.length == TERNARY_ACTION) throw new ActionParameterException();
+                    _playerAction.defineAction(SweeperController.COORDINATE_X,
+                            Integer.parseInt(action[SECOND_PARAMETER]), PlayerAction.ActionType.FLAG);
+                    _playerAction.defineAction(SweeperController.COORDINATE_Y,
+                            Integer.parseInt(action[THIRD_PARAMETER]), PlayerAction.ActionType.FLAG);
+                }
+                catch (NumberFormatException | ActionParameterException ex)
+                {
+                    System.out.println("Action cant be executed! Please, try again.");
+                    _playerAction.defineAction(SweeperController.INVALID_ACTION,
+                            IGNORE_PARAMETERS, PlayerAction.ActionType.INVALID);
+                }
+            }
+            case SCORE ->
+            {
+                if (action.length == BINARY_ACTION)
+                {
+                    _gameModel.resetGameTimer();
+                    _playerAction.defineAction(SweeperController.PLAYER_NAME,
+                            action[SECOND_PARAMETER], PlayerAction.ActionType.SAVE_SCORE);
+                    _playerAction.defineAction(SweeperController.PLAYER_SCORE,
+                            _gameModel.getCurScore(), PlayerAction.ActionType.SAVE_SCORE);
                 }
                 else
                 {
+                    System.out.println("Action cant be executed! Please, try again.");
                     _playerAction.defineAction(SweeperController.INVALID_ACTION,
                             IGNORE_PARAMETERS, PlayerAction.ActionType.INVALID);
                 }
@@ -243,11 +414,7 @@ public class Console implements PropertyChangeListener
     {
         switch (newStage)
         {
-            case ACTION ->
-            {
-                printGameField();
-                requestForPlayerAction();
-            }
+            case ACTION -> printGameField();
             case DEFEAT ->
             {
                 System.out.println("DEFEAT!");
@@ -257,8 +424,9 @@ public class Console implements PropertyChangeListener
             {
                 System.out.println("VICTORY!");
                 printGameField();
-                requestForPlayerAction();
             }
+            case CLOSED -> System.out.println("Back to menu.");
         }
+        requestForPlayerAction();
     }
 }

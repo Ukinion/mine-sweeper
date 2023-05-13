@@ -24,6 +24,14 @@ public class MineSweeper
     private static final int START_NEIGHBOUR = -1;
     private static final int END_NEIGHBOUR = 2;
 
+    public String getAboutInfo()
+    {
+        return "\t\tWelcome to Minesweeper!\n\t" +
+                "1) Click on titles to open them.\n\t" +
+                "2) Numbers show count of bombs around (3x3 area).\n\t" +
+                "3) Try not to blow up!";
+    }
+
     public enum GameStage
     {
         LAUNCHED, ACTION, VICTORY, DEFEAT, CLOSED
@@ -60,6 +68,11 @@ public class MineSweeper
         _curGameTime = 0;
 
         changeStageAndNotify(GameStage.ACTION);
+    }
+
+    public void addListener(PropertyChangeListener newListener)
+    {
+        _gameEventSupport.addPropertyChangeListener(newListener);
     }
 
     private void changeStageAndNotify(GameStage newStage)
@@ -114,7 +127,7 @@ public class MineSweeper
         }
     }
 
-    private void startGameTimer()
+    public void startGameTimer()
     {
         TimerTask gameTimerTask = new TimerTask() {
             @Override
@@ -136,10 +149,10 @@ public class MineSweeper
     {
         _gameField.openField();
         changeStageAndNotify(GameStage.DEFEAT);
-        resetTimer();
+        resetGameTimer();
     }
 
-    private void resetTimer()
+    public void resetGameTimer()
     {
         _gameTimer.cancel();
         _gameTimer.purge();
@@ -157,8 +170,7 @@ public class MineSweeper
 
         cell.openCell();
         _gameEventSupport.firePropertyChange(IGNORE_EVENT, IGNORE, cell);
-        --_cellToOpen;
-        if (cell.getMinesAround() > 0 || _cellToOpen == 0) return;
+        if (cell.getMinesAround() > 0 || _cellToOpen-- == 0) return;
 
         for (var i = START_NEIGHBOUR; i < END_NEIGHBOUR; ++i)
         {

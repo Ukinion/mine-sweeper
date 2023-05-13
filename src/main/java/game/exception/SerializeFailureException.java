@@ -4,6 +4,6 @@ public class SerializeFailureException extends GameException
 {
     public SerializeFailureException()
     {
-        super("ScoreTableError: failure while serialize score table\n");
+        super("ScoreTableError: failure while serialize score table");
     }
 }

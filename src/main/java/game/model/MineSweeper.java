@@ -42,14 +42,13 @@ public class MineSweeper
     private ScoreTable _scoreTable;
 
     private Timer _gameTimer;
-    private PropertyChangeListener _gameListener;
     private PropertyChangeSupport _gameEventSupport;
 
     private int _curScore;
     private int _curGameTime;
     private int _cellToOpen;
+    private int _numAvailableFlags;
     private boolean _isFirstClick = true;
-
 
     public MineSweeper()
     {
@@ -60,7 +59,8 @@ public class MineSweeper
     public void startGame(int gameFieldRow, int gameFieldCol, int numMinesOnField) throws GameException
     {
         _gameField = new MineField(gameFieldRow, gameFieldCol, numMinesOnField);
-        _cellToOpen = _gameField.getNumNotMinedCell();
+        _cellToOpen = _gameField.getNumClearGround();
+        _numAvailableFlags = numMinesOnField;
         _curScore = BASE_SCORE;
         _gameStage = GameStage.LAUNCHED;
 
@@ -113,6 +113,7 @@ public class MineSweeper
             {
                 startGameTimer();
                 _gameField.moveMine(cell);
+                _isFirstClick = false;
             }
             else
             {
@@ -120,6 +121,7 @@ public class MineSweeper
                 return;
             }
         }
+        if (_isFirstClick) { _isFirstClick = false; }
         openCellLocality(cell.getCoordinateX(), cell.getCoordinateY());
         if (!isVictory())
         {
@@ -192,8 +194,14 @@ public class MineSweeper
         return false;
     }
 
+    public boolean isVictoryStage()
+    {
+        return _gameStage == GameStage.VICTORY;
+    }
+
     public void closeGame()
     {
+        resetGameTimer();
         changeStageAndNotify(GameStage.CLOSED);
     }
 
@@ -207,11 +215,36 @@ public class MineSweeper
         return _gameField;
     }
 
-
-    public void setFlag(int x, int y)
+    public void useFlag(int x, int y)
     {
-        _gameField.locateCell(x,y).setFlag();
-        _gameEventSupport.firePropertyChange(FIELD_CHANGE_EVENT, IGNORE, _gameField.locateCell(x,y));
+        Cell cell = _gameField.locateCell(x, y);
+        if (!cell.isFlag() && _numAvailableFlags == 0 || cell.isOpened())
+        {
+            _gameEventSupport.firePropertyChange(FIELD_CHANGE_EVENT,
+                    IGNORE, IGNORE);
+            return;
+        }
+
+        if (cell.isFlag())
+        {
+            cell.unsetFlag();
+            ++_numAvailableFlags;
+        }
+        else
+        {
+            cell.setFlag();
+            --_numAvailableFlags;
+        }
+
+        if (isVictory())
+        {
+            changeStageAndNotify(GameStage.VICTORY);
+        }
+        else
+        {
+            _gameEventSupport.firePropertyChange(FIELD_CHANGE_EVENT,
+                    IGNORE, IGNORE);
+        }
     }
 
     public int getCurGameTime()
@@ -223,6 +256,4 @@ public class MineSweeper
     {
         return _curScore;
     }
-
-
 }

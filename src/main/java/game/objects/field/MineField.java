@@ -93,19 +93,16 @@ public class MineField
         return x < 0 || y < 0 || x >= _fieldCol || y >= _fieldRow;
     }
 
-    private void mineBoard(int numMines)
+    private void mineBoard(int numMines) throws GameException
     {
-        if (numMines < _fieldSize)
+        if (numMines < _fieldSize-1)
         {
             for (var i = 0; i < numMines; ++i)
             {
                 mineRandomGround();
             }
         }
-        else
-        {
-            _numMinesOnField = _fieldSize;
-        }
+        else throw new InvalidFieldSetupException();
     }
 
     private void mineRandomGround()
@@ -167,17 +164,17 @@ public class MineField
         }
     }
 
-    public int getNumNotMinedCell()
-    {
-        return _fieldSize-_numMinesOnField;
-    }
-
     public void openField()
     {
         for (Cell i : _cells)
         {
             i.openCell();
         }
+    }
+
+    public int getNumClearGround()
+    {
+        return _fieldSize-_numMinesOnField;
     }
 
     public int getFieldRow()

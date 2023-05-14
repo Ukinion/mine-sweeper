@@ -90,6 +90,11 @@ public class Cell
         _isFlag = true;
     }
 
+    public void unsetFlag()
+    {
+        _isFlag = false;
+    }
+
     public void removeFlag() { _isFlag = false; }
 
     public void getRound()

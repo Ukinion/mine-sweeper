@@ -3,6 +3,8 @@ package game.logic;
 import game.exception.GameException;
 import game.model.MineSweeper;
 
+import static game.display.Console.IGNORE_PARAMETERS;
+
 public class SweeperController
 {
     public static final String COORDINATE_X = "x";
@@ -10,7 +12,6 @@ public class SweeperController
     public static final String PLAYER_NAME = "name";
     public static final String PLAYER_SCORE = "score";
     public static final String PLAYER = "player";
-    public static final String SERIALIZE = "serialize";
     public static final String EXIT_FROM_GAME = "exit";
     public static final String INVALID_ACTION = "invalid";
     public static final int EXIT_FAILURE = -1;
@@ -39,30 +40,37 @@ public class SweeperController
         {
             case CLICK ->
             {
+                resetAction(playerAction);
                 _gameModel.clickOnCell((int)playerAction.getActionParameters(COORDINATE_X),
                         (int)playerAction.getActionParameters(COORDINATE_Y));
             }
             case FLAG ->
             {
-                _gameModel.setFlag((int)playerAction.getActionParameters(COORDINATE_X),
+                resetAction(playerAction);
+                _gameModel.useFlag((int)playerAction.getActionParameters(COORDINATE_X),
                         (int)playerAction.getActionParameters(COORDINATE_Y));
             }
             case EXIT ->
             {
+                resetAction(playerAction);
                 _gameModel.closeGame();
+
             }
             case SAVE_SCORE ->
             {
+                resetAction(playerAction);
                 _gameModel.getScoreTable().updateScoreTable((String)playerAction.getActionParameters(PLAYER_NAME),
                         (Double)playerAction.getActionParameters(PLAYER_SCORE));
             }
             case REMOVE_SCORE ->
             {
+                resetAction(playerAction);
                 _gameModel.getScoreTable().removeFromScoreTable((String)
                         playerAction.getActionParameters(PLAYER));
             }
             case SERIALIZE_SCORE ->
             {
+                resetAction(playerAction);
                 _gameModel.getScoreTable().serializeScoreTable();
             }
             case INVALID ->
@@ -72,6 +80,13 @@ public class SweeperController
             }
         }
     }
+
+    private void resetAction(PlayerAction action)
+    {
+        action.defineAction(SweeperController.INVALID_ACTION,
+                IGNORE_PARAMETERS, PlayerAction.ActionType.INVALID);
+    }
+
 
     public MineSweeper getGameModel()
     {

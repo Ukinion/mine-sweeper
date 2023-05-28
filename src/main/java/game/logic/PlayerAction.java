@@ -2,42 +2,33 @@ package game.logic;
 
 import java.util.HashMap;
 
-public class PlayerAction
-{
-    public enum ActionType
-    {
+public class PlayerAction {
+    public enum ActionType {
         CLICK, FLAG, EXIT, SAVE_SCORE, REMOVE_SCORE, SERIALIZE_SCORE, INVALID
     }
 
     private HashMap<String, Object> _actionParameters;
     private ActionType _actionType;
 
-    public PlayerAction()
-    {
+    public PlayerAction() {
         _actionParameters = new HashMap<>();
         _actionType = ActionType.INVALID;
     }
 
-    public Object getActionParameters(String action)
-    {
+    public Object getActionParameters(String action) {
         return _actionParameters.get(action);
     }
 
-    public void defineAction(String action, Object actionParameter, ActionType actionType)
-    {
+    public void defineAction(String action, Object actionParameter, ActionType actionType) {
         _actionParameters.put(action, actionParameter);
         _actionType = actionType;
     }
 
-    public boolean isInvalidAction()
-    {
+    public boolean isInvalidAction() {
         return _actionType == ActionType.INVALID;
     }
 
-    public ActionType getActionType()
-    {
+    public ActionType getActionType() {
         return _actionType;
     }
-
-
 }

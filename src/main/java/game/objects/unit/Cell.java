@@ -1,8 +1,9 @@
 package game.objects.unit;
 
-public class Cell
-{
-    public enum CellType { GROUND, MINE }
+public class Cell {
+    public enum CellType {
+        GROUND, MINE
+    }
 
     private CellType _cellType;
     private int _x;
@@ -12,8 +13,7 @@ public class Cell
     private boolean _isFlag;
     private boolean _isGetRound;
 
-    public Cell(int x, int y)
-    {
+    public Cell(int x, int y) {
         _cellType = CellType.GROUND;
         _x = x;
         _y = y;
@@ -23,8 +23,7 @@ public class Cell
         _isGetRound = false;
     }
 
-    public boolean isOpened()
-    {
+    public boolean isOpened() {
         return _isOpened;
     }
 
@@ -33,77 +32,61 @@ public class Cell
         return _isFlag;
     }
 
-    public boolean isGetRound()
-    {
+    public boolean isGetRound() {
         return _isGetRound;
     }
 
-    public boolean isClear()
-    {
+    public boolean isClear() {
         return _cellType == CellType.GROUND;
     }
 
-    public boolean isMine()
-    {
+    public boolean isMine() {
         return _cellType == CellType.MINE;
     }
 
-    public int getMinesAround()
-    {
+    public int getMinesAround() {
         return _numMinesAround;
     }
 
-    public int getCoordinateX()
-    {
+    public int getCoordinateX() {
         return _x;
     }
 
-    public int getCoordinateY()
-    {
+    public int getCoordinateY() {
         return _y;
     }
 
-    public void setMine()
-    {
+    public void setMine() {
         _cellType = CellType.MINE;
         _numMinesAround = 0;
     }
 
-    public void defuseMine(int numMinesAround)
-    {
+    public void defuseMine(int numMinesAround) {
         _cellType = CellType.GROUND;
         _numMinesAround = numMinesAround;
     }
 
-    public void detectNewMine()
-    {
+    public void detectNewMine() {
         ++_numMinesAround;
     }
 
-    public void openCell()
-    {
+    public void openCell() {
         _isOpened = true;
     }
 
-    public void setFlag()
-    {
+    public void setFlag() {
         _isFlag = true;
     }
 
-    public void unsetFlag()
-    {
+    public void removeFlag() {
         _isFlag = false;
     }
 
-    public void removeFlag() { _isFlag = false; }
-
-    public void getRound()
-    {
+    public void getRound() {
         _isGetRound = true;
     }
 
-    public void concealMine()
-    {
+    public void concealMine() {
         --_numMinesAround;
     }
 }

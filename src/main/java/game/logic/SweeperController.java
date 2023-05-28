@@ -5,8 +5,7 @@ import game.model.MineSweeper;
 
 import static game.display.Console.IGNORE_PARAMETERS;
 
-public class SweeperController
-{
+public class SweeperController {
     public static final String COORDINATE_X = "x";
     public static final String COORDINATE_Y = "y";
     public static final String PLAYER_NAME = "name";
@@ -18,79 +17,62 @@ public class SweeperController
 
     private MineSweeper _gameModel;
 
-    public SweeperController()
-    {
+    public SweeperController() {
         _gameModel = new MineSweeper();
     }
 
-    public void startMineSweeper(int fieldRow, int fieldCol, int numMinesOnField) throws GameException
-    {
-        _gameModel.startGame(fieldRow, fieldCol, numMinesOnField);
+    public void initGameObjects(int fieldRow, int fieldCol, int numMinesOnField) throws GameException {
+        _gameModel.initGameObjects(fieldRow, fieldCol, numMinesOnField);
     }
 
-    public void closeMineSweeper()
-    {
-        _gameModel.closeGame();
+    public void startMineSweeper() {
+        _gameModel.startGame();
     }
 
     @SuppressWarnings("unchecked")
-    public void processPlayerAction(PlayerAction playerAction) throws GameException
-    {
-        switch(playerAction.getActionType())
-        {
-            case CLICK ->
-            {
+    public void processPlayerAction(PlayerAction playerAction) throws GameException {
+        switch(playerAction.getActionType()) {
+            case CLICK -> {
                 resetAction(playerAction);
                 _gameModel.clickOnCell((int)playerAction.getActionParameters(COORDINATE_X),
                         (int)playerAction.getActionParameters(COORDINATE_Y));
             }
-            case FLAG ->
-            {
+            case FLAG -> {
                 resetAction(playerAction);
                 _gameModel.useFlag((int)playerAction.getActionParameters(COORDINATE_X),
                         (int)playerAction.getActionParameters(COORDINATE_Y));
             }
-            case EXIT ->
-            {
+            case EXIT -> {
                 resetAction(playerAction);
-                _gameModel.closeGame();
-
+                _gameModel.forceCloseGame();
             }
-            case SAVE_SCORE ->
-            {
+            case SAVE_SCORE -> {
                 resetAction(playerAction);
                 _gameModel.getScoreTable().updateScoreTable((String)playerAction.getActionParameters(PLAYER_NAME),
-                        (Double)playerAction.getActionParameters(PLAYER_SCORE));
+                        (Integer)playerAction.getActionParameters(PLAYER_SCORE));
             }
-            case REMOVE_SCORE ->
-            {
+            case REMOVE_SCORE -> {
                 resetAction(playerAction);
                 _gameModel.getScoreTable().removeFromScoreTable((String)
                         playerAction.getActionParameters(PLAYER));
             }
-            case SERIALIZE_SCORE ->
-            {
+            case SERIALIZE_SCORE -> {
                 resetAction(playerAction);
                 _gameModel.getScoreTable().serializeScoreTable();
             }
-            case INVALID ->
-            {
+            case INVALID -> {
                 System.err.println("Invalid player action! Exit failure...");
                 System.exit(EXIT_FAILURE);
             }
         }
     }
 
-    private void resetAction(PlayerAction action)
-    {
+    private void resetAction(PlayerAction action) {
         action.defineAction(SweeperController.INVALID_ACTION,
                 IGNORE_PARAMETERS, PlayerAction.ActionType.INVALID);
     }
 
-
-    public MineSweeper getGameModel()
-    {
+    public MineSweeper getGameModel() {
         return _gameModel;
     }
-
 }

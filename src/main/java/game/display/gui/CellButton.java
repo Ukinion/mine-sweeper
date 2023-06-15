@@ -13,8 +13,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 public class CellButton extends Button {
-    private static final String FLAG_IMAGE_URL = "flag.png";
-    private static final String MINE_IMAGE_URL = "mine.png";
+    private static final String FLAG_IMAGE_URL = "src/main/resources/flag.png";
+    private static final String MINE_IMAGE_URL = "src/main/resources/mine.png";
 
     private static final int LOADING_FAILED = -0x5;
 
@@ -23,7 +23,7 @@ public class CellButton extends Button {
 
     private final Cell _cell;
     private PlayerAction _action;
-    private SweeperController _controller;
+    private static SweeperController _controller;
 
     static {
         try (FileInputStream inputImageFile = new FileInputStream(FLAG_IMAGE_URL)) {
@@ -44,6 +44,7 @@ public class CellButton extends Button {
 
     public CellButton(Cell cell) {
         _cell = cell;
+        _action = new PlayerAction();
         this.setOnMouseClicked(mouseEvent -> {
             if (mouseEvent.getButton() == MouseButton.SECONDARY) {
                 _action.defineAction(SweeperController.COORDINATE_X, _cell.getCoordinateX(),
@@ -79,7 +80,7 @@ public class CellButton extends Button {
         }
     }
 
-    public void setController(SweeperController controller) {
+    public static void setController(SweeperController controller) {
         _controller = controller;
     }
 }

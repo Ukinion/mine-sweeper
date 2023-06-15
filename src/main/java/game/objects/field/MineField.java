@@ -32,7 +32,7 @@ public class MineField {
 
     public MineField(int numRow, int numCol, int numMines) throws GameException {
         if (isInvalidOptions(numRow, numCol, numMines)) {
-            throw new InvalidFieldSetupException("Such options not supported by Console UI");
+            throw new InvalidFieldSetupException("Such options not supported");
         }
         _fieldRow = numRow;
         _fieldCol = numCol;
@@ -163,5 +163,9 @@ public class MineField {
 
     public int getFieldCol() {
         return _fieldCol;
+    }
+
+    public int getFieldSize() {
+        return _fieldSize;
     }
 }

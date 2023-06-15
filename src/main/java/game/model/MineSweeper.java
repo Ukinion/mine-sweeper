@@ -15,6 +15,7 @@ public class MineSweeper {
     public static final String CHANGE_GAME_STAGE_EVENT = "StageChange";
     public static final String REQUEST_ACTION_EVENT = "NothingChange";
     public static final String FIELD_CHANGE_EVENT = "FieldChangeOrFlagSet";
+    public static final String TIMER_TICK = "tick";
 
     private static final int BASE = 1;
     private static final int DELAY = 1000;
@@ -128,7 +129,7 @@ public class MineSweeper {
             @Override
             public void run() {
                 updateCurGameScore();
-                _gameEventSupport.firePropertyChange(IGNORE_EVENT,
+                _gameEventSupport.firePropertyChange(TIMER_TICK,
                         IGNORE, _curGameTime);
             }
         };
@@ -214,7 +215,7 @@ public class MineSweeper {
             changeStageAndNotify(GameStage.VICTORY);
         } else {
             _gameEventSupport.firePropertyChange(FIELD_CHANGE_EVENT,
-                    IGNORE, IGNORE);
+                    IGNORE, cell);
         }
     }
 

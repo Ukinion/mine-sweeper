@@ -27,8 +27,7 @@ public class Cell {
         return _isOpened;
     }
 
-    public boolean isFlag()
-    {
+    public boolean isFlag() {
         return _isFlag;
     }
 

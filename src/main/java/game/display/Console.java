@@ -27,7 +27,6 @@ public class Console implements PropertyChangeListener {
     private static final String CLOSED_CELL_IMAGE = "*";
 
     private static final int UNARY_ACTION = 1;
-    private static final int BINARY_ACTION = 2;
     private static final int TERNARY_ACTION = 3;
     private static final int FIRST_PARAMETER = 0;
     private static final int SECOND_PARAMETER = 1;
@@ -271,8 +270,8 @@ public class Console implements PropertyChangeListener {
     public void propertyChange(PropertyChangeEvent gameEvent) {
         try {
             switch (gameEvent.getPropertyName()) {
-                case MineSweeper.IGNORE_EVENT -> {
-                }
+                case MineSweeper.IGNORE_EVENT -> {}
+                case MineSweeper.TIMER_TICK -> {}
                 case MineSweeper.REQUEST_ACTION_EVENT -> requestForPlayerAction();
                 case MineSweeper.FIELD_CHANGE_EVENT -> {
                     printGameField();

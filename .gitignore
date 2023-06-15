@@ -1,7 +1,9 @@
 .idea/
 .mvn/
-mvnw
-mvnw.cmd
-/target/
+.md
+.iml
+!README.md
+
+target/
 
 

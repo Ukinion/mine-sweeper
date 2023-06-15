@@ -55,6 +55,14 @@ public class Cell {
         return _y;
     }
 
+    public CellType getType() {
+        return _cellType;
+    }
+
+    public void setType(CellType newType) {
+        _cellType = newType;
+    }
+
     public void setMine() {
         _cellType = CellType.MINE;
         _numMinesAround = 0;

@@ -50,7 +50,8 @@ public class MineSweeper {
     private int _curGameTime;
     private int _cellToOpen;
     private int _numAvailableFlags;
-    private boolean _isFirstClick = true;
+    private boolean _isFirstClick;
+    private boolean isEventNotTriggered = true;
 
     public MineSweeper() {
         _gameEventSupport = new PropertyChangeSupport(this);
@@ -66,6 +67,7 @@ public class MineSweeper {
         _scoreMultiplier = BASE;
         _gameStage = GameStage.LAUNCHED;
         _cellToOpen = _gameField.getNumClearGround();
+        _isFirstClick = true;
     }
 
     public void startGame() {
@@ -176,7 +178,6 @@ public class MineSweeper {
         if (_cellToOpen == 0) {
             _gameField.openField();
             resetGameTimer();
-            changeStageAndNotify(GameStage.VICTORY);
             return true;
         }
         return false;
@@ -211,8 +212,9 @@ public class MineSweeper {
             --_numAvailableFlags;
         }
 
-        if (isVictory()) {
+        if (isVictory() && isEventNotTriggered) {
             changeStageAndNotify(GameStage.VICTORY);
+            isEventNotTriggered = false;
         } else {
             _gameEventSupport.firePropertyChange(FIELD_CHANGE_EVENT,
                     IGNORE, cell);

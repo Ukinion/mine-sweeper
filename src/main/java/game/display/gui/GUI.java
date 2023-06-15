@@ -19,13 +19,11 @@ import javafx.stage.Stage;
 import javafx.scene.control.Button;
 import javafx.util.Pair;
 
-import javax.swing.plaf.LabelUI;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 
 public class GUI extends Application implements PropertyChangeListener {
-    private static final int MIN_WIDTH = 100;
     private static final String EMPTY_TABLE = "Table is empty";
 
     private static final int GODLIKE_RANK = 1;
@@ -39,15 +37,14 @@ public class GUI extends Application implements PropertyChangeListener {
     private static final String KNIGHT = "Knight";
     private static final String Loon  = "Loon";
 
-    private static final int EMPTY_STRING = 0;
     private static final String IGNORE_PARAMETERS = "ignore";
 
     private Stage _mainStage;
     private VBox _menu;
     private GridPane _gameFieldPane;
     private HBox _gameWindowLayout;
-    private Label _scoreLabel;
-    private Label _timerLabel;
+    private Label _scoreLabel = new Label("0.0");
+    private Label _timerLabel = new Label("0.0");
     private Stage _currentStage;
     private int _fieldCol;
 
@@ -58,7 +55,6 @@ public class GUI extends Application implements PropertyChangeListener {
     public static void invokeGameMenu() throws GameException {
         _gameController = new SweeperController();
         _gameModel = _gameController.getGameModel();
-        System.out.println("Thread startGUI: " + Thread.currentThread());
         launch();
     }
 
@@ -71,14 +67,21 @@ public class GUI extends Application implements PropertyChangeListener {
         setupMainStage();
     }
 
+    @Override
+    public void stop() {
+        System.exit(0);
+    }
+
     private void setupMainStage() {
         createMenuLayout();
         createFieldLayout();
         createMainLayout();
         Scene scene = new Scene(_gameWindowLayout);
         _mainStage.setScene(scene);
-        _mainStage.setWidth(600);
-        _mainStage.setHeight(600);
+        _mainStage.setMinWidth(200);
+        _mainStage.setMinHeight(240);
+        _mainStage.setWidth(350);
+        _mainStage.setHeight(420);
         _mainStage.show();
     }
 
@@ -89,7 +92,7 @@ public class GUI extends Application implements PropertyChangeListener {
         _menu.getChildren().add(createAboutButton());
         _menu.getChildren().add(createExitButton());
         _menu.getChildren().add(createTimerAndScorePane());
-        _menu.setMinWidth(MIN_WIDTH);
+        _menu.setMinWidth(100);
     }
 
     private Button createStartButton() {
@@ -114,8 +117,8 @@ public class GUI extends Application implements PropertyChangeListener {
             optionsBox.setAlignment(Pos.CENTER);
             optionsStage.setScene(new Scene(optionsBox));
             optionsStage.initModality(Modality.APPLICATION_MODAL);
-            optionsStage.setMinHeight(80);
-            optionsStage.setMinWidth(120);
+            optionsStage.setMinHeight(200);
+            optionsStage.setMinWidth(240);
             optionsStage.showAndWait();
         });
         return startButton;
@@ -131,8 +134,6 @@ public class GUI extends Application implements PropertyChangeListener {
                 int row = Integer.parseInt(fieldRow.getText());
                 int mines = Integer.parseInt(numMines.getText());
                 _gameController.initGameObjects(row, col, mines);
-                _timerLabel = new Label("0.0");
-                _scoreLabel = new Label("0.0");
                 _gameController.startMineSweeper();
                 stage.close();
             } catch (Exception e){
@@ -152,7 +153,6 @@ public class GUI extends Application implements PropertyChangeListener {
         VBox.setVgrow(recordsButton, Priority.ALWAYS);
         recordsButton.setOnMouseClicked(mouseEvent -> {
             Stage recordStage = createRecordStage();
-            _currentStage = recordStage;
             recordStage.showAndWait();
         });
         return recordsButton;
@@ -160,16 +160,17 @@ public class GUI extends Application implements PropertyChangeListener {
 
     private Stage createRecordStage() {
         Stage recordStage = new Stage();
+        _currentStage = recordStage;
         recordStage.setTitle("Records");
         recordStage.setScene(new Scene(createRecordVBox()));
         recordStage.initModality(Modality.APPLICATION_MODAL);
-        recordStage.setMinHeight(80);
-        recordStage.setMinWidth(120);
+        recordStage.setMinHeight(200);
+        recordStage.setMinWidth(240);
         return recordStage;
     }
 
     private VBox createRecordVBox() {
-        Label scoreTableLabel = createScoreTableLabel();
+        Label scoreTableLabel = new Label(createRecords(_gameModel.getScoreTable()));
         Label recordsActionLabel = new Label("Enter player name to delete");
         TextField inputField = new TextField();
         Button deleteButton = createRecordDeleteButton(inputField, scoreTableLabel);
@@ -177,14 +178,9 @@ public class GUI extends Application implements PropertyChangeListener {
         HBox buttonsBox = new HBox(deleteButton, returnButton);
         buttonsBox.setAlignment(Pos.CENTER);
         VBox recordsMenuBox = new VBox(scoreTableLabel, recordsActionLabel, inputField, buttonsBox);
+        recordsMenuBox.setSpacing(5);
         recordsMenuBox.setAlignment(Pos.CENTER);
         return recordsMenuBox;
-    }
-
-    private Label createScoreTableLabel() {
-        Label scoreTableLabel = new Label(createRecords(_gameModel.getScoreTable()));
-        scoreTableLabel.setAlignment(Pos.CENTER);
-        return scoreTableLabel;
     }
 
     private String createRecords(ScoreTable scoreTable) {
@@ -201,8 +197,6 @@ public class GUI extends Application implements PropertyChangeListener {
             tableWindow.append(player.getKey());
             tableWindow.append(" - ");
             tableWindow.append(player.getValue()).append(" points");
-            System.out.println(tableWindow);
-            tableWindow.setLength(EMPTY_STRING);
         }
         return tableWindow.toString();
     }
@@ -270,7 +264,7 @@ public class GUI extends Application implements PropertyChangeListener {
             VBox aboutMenu = new VBox(aboutLabel, returnButtonBox);
             aboutMenu.setSpacing(5);
             aboutStage.setScene(new Scene(aboutMenu));
-            aboutLabel.setAlignment(Pos.CENTER);
+            aboutMenu.setAlignment(Pos.CENTER);
             aboutStage.initModality(Modality.APPLICATION_MODAL);
             aboutStage.showAndWait();
         });
@@ -305,27 +299,26 @@ public class GUI extends Application implements PropertyChangeListener {
         VBox.setVgrow(pane, Priority.ALWAYS);
         Label timerText = new Label("Timer: ");
         Label scoreText = new Label("Score: ");
-        Label timerValue = new Label("0.0");
-        Label scoreValue = new Label("0.0");
-        timerValue.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        scoreValue.setMaxSize(50,50);
+        _timerLabel.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        _scoreLabel.setMaxSize(50,50);
         HBox timer = new HBox();
         timer.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        HBox.setHgrow(timerValue, Priority.ALWAYS);
+        HBox.setHgrow(_timerLabel, Priority.ALWAYS);
         VBox.setVgrow(timer, Priority.ALWAYS);
         HBox score = new HBox();
         score.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         VBox.setVgrow(score, Priority.ALWAYS);
-        timer.getChildren().addAll(timerText, timerValue);
-        score.getChildren().addAll(scoreText, scoreValue);
+        timer.getChildren().addAll(timerText, _timerLabel);
+        score.getChildren().addAll(scoreText, _scoreLabel);
         pane.getChildren().addAll(timer, score);
-        _timerLabel = timerValue;
-        _scoreLabel = scoreValue;
         return pane;
     }
 
     private void createFieldLayout() {
         _gameFieldPane = new GridPane();
+        _gameFieldPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        HBox.setHgrow(_gameFieldPane, Priority.ALWAYS);
+        VBox.setVgrow(_gameFieldPane, Priority.ALWAYS);
         _gameFieldPane.setAlignment(Pos.CENTER);
     }
 
@@ -333,6 +326,8 @@ public class GUI extends Application implements PropertyChangeListener {
         _gameWindowLayout = new HBox();
         _gameWindowLayout.getChildren().addAll(_gameFieldPane, _menu);
         _gameWindowLayout.setAlignment(Pos.CENTER_RIGHT);
+        _gameWindowLayout.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        _gameWindowLayout.setFillHeight(true);
     }
 
     @Override
@@ -348,7 +343,7 @@ public class GUI extends Application implements PropertyChangeListener {
             }
             case MineSweeper.FIELD_CHANGE_EVENT -> {
                 Cell cell = (Cell) gameEvent.getNewValue();
-                updateCell(cell.getCoordinateX(), cell.getCoordinateY());
+                updateButton(cell);
                 updateField();
             }
             case MineSweeper.CHANGE_GAME_STAGE_EVENT -> {
@@ -357,8 +352,8 @@ public class GUI extends Application implements PropertyChangeListener {
         }
     }
 
-    private void updateCell(int x, int y) {
-        cellButtons.get(y * _fieldCol + x).updateButtonImage();
+    private void updateButton(Cell cell) {
+        cellButtons.get(cell.getCoordinateY() * _fieldCol + cell.getCoordinateX()).updateButtonImage();
     }
 
     private void updateField() {
@@ -373,12 +368,12 @@ public class GUI extends Application implements PropertyChangeListener {
             case DEFEAT ->  {
                 updateField();
                 showDefeatWindow();
-                _gameFieldPane.getChildren().clear();
+                clearResources();
             }
             case VICTORY -> {
                 updateField();
                 showVictoryWindow();
-                _gameFieldPane.getChildren().clear();
+                clearResources();
             }
         }
     }
@@ -396,8 +391,7 @@ public class GUI extends Application implements PropertyChangeListener {
             for (int x = 0; x < fieldCol; ++x) {
                 cell = gameField.locateCell(x, y);
                 cellButton = new CellButton(cell);
-                cellButton.setPrefSize(30, 30);
-                cellButton.setMinSize(30, 30);
+                cellButton.setPrefSize(40, 40);
                 cellButton.updateButtonImage();
                 _gameFieldPane.add(cellButton, x, y);
                 cellButtons.add(y * fieldCol + x, cellButton);
@@ -412,33 +406,27 @@ public class GUI extends Application implements PropertyChangeListener {
         Label victoryInfo = new Label("Congratulations!" +
                 "\nYour score is " + _gameModel.getCurScore());
         victoryInfo.setAlignment(Pos.CENTER);
-        Button saveButton = createSaveButton();
+        Label saveRequest = new Label("Enter your name ");
+        TextField nameField = new TextField();
+        Button saveButton = createSaveButton(nameField);
         Button returnButton = createReturnButton();
         HBox buttonsBox = new HBox(saveButton, returnButton);
         buttonsBox.setAlignment(Pos.CENTER);
-        VBox mainBox = new VBox(victoryInfo, buttonsBox);
+        VBox mainBox = new VBox(victoryInfo, saveRequest, nameField, buttonsBox);
+        mainBox.setAlignment(Pos.CENTER);
+        mainBox.setSpacing(5);
         scoreStage.setScene(new Scene(mainBox));
         scoreStage.initModality(Modality.APPLICATION_MODAL);
+        scoreStage.setWidth(280);
+        scoreStage.setHeight(150);
         scoreStage.showAndWait();
     }
 
-    private Button createSaveButton() {
+    private Button createSaveButton(TextField nameField) {
         Button saveButton = new Button("Save score");
         saveButton.setOnMouseClicked( mouseEvent -> {
-//            _currentStage.close();
-            Stage saveScoreStage = new Stage();
-            saveScoreStage.setTitle("Saving");
-            _currentStage = saveScoreStage;
-            Label saveRequest = new Label("Enter your name ");
-            TextField nameField = new TextField();
-            Button confirmButton = new Button("OK");
-            confirmButton.setOnMouseClicked( anotherMouseEvent -> {
-                saveScore(nameField);
-            });
-            confirmButton.setAlignment(Pos.CENTER);
-            saveScoreStage.setScene(new Scene(new VBox(saveRequest, nameField, confirmButton)));
-            saveScoreStage.initModality(Modality.APPLICATION_MODAL);
-            saveScoreStage.showAndWait();
+            saveScore(nameField);
+            _currentStage.close();
         });
         return saveButton;
     }
@@ -454,6 +442,8 @@ public class GUI extends Application implements PropertyChangeListener {
         defeatWindowBox.setAlignment(Pos.CENTER);
         defeateStage.setScene(new Scene(defeatWindowBox));
         defeateStage.initModality(Modality.APPLICATION_MODAL);
+        defeateStage.setWidth(480);
+        defeateStage.setHeight(130);
         defeateStage.showAndWait();
     }
 
@@ -473,5 +463,11 @@ public class GUI extends Application implements PropertyChangeListener {
             alert.setContentText(e.getMessage());
             alert.showAndWait();
         }
+    }
+
+    private void clearResources() {
+        _gameFieldPane.getChildren().clear();
+        _timerLabel.setText("0.0");
+        _scoreLabel.setText("0.0");
     }
 }

@@ -1,6 +1,12 @@
 .idea/
 .mvn/
+target/
+classes
 mvnw
-mvnw.cmd
+*.cmd
+*.xml
+*.md
+*.iml
+!README.md
 
 
